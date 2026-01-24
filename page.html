@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Content-Security-Policy" content="script-src 'self'; object-src 'self';">
+  <title>Instagram Image</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      background: #1a1a1a;
+      color: #fff;
+      font-family: system-ui, -apple-system, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 20px;
+    }
+    .header {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 30px;
+      align-items: center;
+    }
+    h1 {
+      font-size: 24px;
+      margin-right: auto;
+    }
+    button {
+      padding: 10px 20px;
+      background: #4a9eff;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    button:hover {
+      background: #3a8eef;
+    }
+    button:disabled {
+      background: #555;
+      cursor: not-allowed;
+      opacity: 0.6;
+    }
+    .image-container {
+      max-width: 90vw;
+      max-height: 80vh;
+    }
+    img {
+      max-width: 100%;
+      max-height: 80vh;
+      border-radius: 12px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+    }
+    .error {
+      color: #ff6b6b;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>Instagram Image</h1>
+    <button id="downloadBtn">📥 Download</button>
+    <a id="cdnLink" href="#" target="_blank" style="padding: 10px 20px; background: #333; color: #fff; text-decoration: none; border-radius: 8px; font-size: 14px;">🔗 CDN Link</a>
+  </div>
+  
+  <div id="urlDisplay" style="width: 90vw; max-width: 1200px; margin-bottom: 20px; padding: 15px; background: #2a2a2a; border-radius: 8px; word-break: break-all; font-size: 12px; font-family: monospace; color: #4a9eff;">
+    <strong style="color: #fff;">Image URL:</strong><br>
+    <span id="urlText">Loading...</span>
+  </div>
+  
+  <div class="image-container">
+    <img id="image" alt="Instagram image">
+  </div>
+
+  <script src="page.js"></script>
+</body>
+</html>

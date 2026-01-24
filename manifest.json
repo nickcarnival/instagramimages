@@ -1,0 +1,22 @@
+{
+  "name": "Instagram Image Extension",
+  "description": "Right-click on Instagram to open image CDN URLs in a new tab",
+  "version": "1.0",
+  "manifest_version": 3,
+  "permissions": [
+    "contextMenus",
+    "activeTab",
+    "scripting",
+    "tabs"
+  ],
+  "host_permissions": [
+    "https://www.instagram.com/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": "instagramimage.jpeg"
+  }
+}
