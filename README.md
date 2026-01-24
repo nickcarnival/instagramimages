@@ -4,9 +4,12 @@ Chrome extension that extracts and displays Instagram images in a clean viewer w
 
 ## What Problem Does This Solve?
 
-Instagram doesn't provide a simple way to view images in full quality or download them directly. When you right-click on an Instagram image, you can't easily "Open image in new tab". This was annoying me so this extension provides this typical browser behavior in a shitty
+Instagram doesn't provide a simple way to view images in full quality or download them directly. When you right-click on an Instagram image, you can't easily "Open image in new tab". This was annoying me so this extension provides this default browser behavior.
 
-Opening from the grid view does not work, it opens a random image. 🤷 IDC
+
+## Bugs:
+
+- Opening from the grid view does not work, it opens a random image. 🤷 IDC
 
 ## Installation
 
