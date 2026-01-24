@@ -5,9 +5,6 @@ const imageUrl = rawImageUrl ? decodeURIComponent(rawImageUrl) : '';
 const imageEl = document.getElementById('image');
 const downloadBtn = document.getElementById('downloadBtn');
 const cdnLink = document.getElementById('cdnLink');
-const fullscreenOverlay = document.getElementById('fullscreenOverlay');
-const fullscreenImage = document.getElementById('fullscreenImage');
-const closeFullscreenBtn = document.getElementById('closeFullscreen');
 
 if (!imageUrl) {
   document.body.innerHTML = '<div class="error"><h1>No image URL provided</h1></div>';
@@ -38,36 +35,18 @@ if (!imageUrl) {
       });
   };
   
-  imageEl.onload = () => {
-    fullscreenImage.src = imageUrl;
-  };
-  
-  function enterFullscreen() {
-    fullscreenOverlay.classList.add('active');
-    document.body.classList.add('fullscreen-active');
-    document.body.style.overflow = 'hidden';
+  function enterZoomView(e) {
+    const rect = imageEl.getBoundingClientRect();
+    const clickX = e.clientX - rect.left;
+    const clickY = e.clientY - rect.top;
+    const clickPercentX = (clickX / rect.width) * 100;
+    const clickPercentY = (clickY / rect.height) * 100;
+    
+    const zoomUrl = chrome.runtime.getURL(`zoom.html?imageUrl=${encodeURIComponent(imageUrl)}&clickX=${clickPercentX}&clickY=${clickPercentY}`);
+    window.location.href = zoomUrl;
   }
   
-  function exitFullscreen() {
-    fullscreenOverlay.classList.remove('active');
-    document.body.classList.remove('fullscreen-active');
-    document.body.style.overflow = '';
-  }
-  
-  imageEl.addEventListener('click', enterFullscreen);
-  
-  closeFullscreenBtn.addEventListener('click', exitFullscreen);
-  fullscreenOverlay.addEventListener('click', (e) => {
-    if (e.target === fullscreenOverlay) {
-      exitFullscreen();
-    }
-  });
-  
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape' && fullscreenOverlay.classList.contains('active')) {
-      exitFullscreen();
-    }
-  });
+  imageEl.addEventListener('click', enterZoomView);
 
   downloadBtn.addEventListener('click', async () => {
     downloadBtn.disabled = true;

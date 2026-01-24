@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Zoom - Instagram Image</title>
+  <link rel="stylesheet" href="zoom.css">
+</head>
+<body>
+  <div class="zoom-container">
+    <img id="zoomImage" alt="Instagram image" draggable="false">
+  </div>
+  <div class="zoom-controls">
+    <button id="zoomReset" class="zoom-btn" title="Reset zoom">⟲</button>
+    <button id="zoomOut" class="zoom-btn" title="Zoom out">−</button>
+    <input type="number" id="zoomInput" class="zoom-input" value="100" min="50" max="1000" step="1">
+    <button id="zoomIn" class="zoom-btn" title="Zoom in">+</button>
+    <button id="closeZoom" class="zoom-btn close-btn" title="Close">×</button>
+  </div>
+
+  <script src="zoom.js"></script>
+</body>
+</html>
