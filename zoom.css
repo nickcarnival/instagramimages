@@ -51,9 +51,28 @@ body {
   display: flex;
   gap: 10px;
   z-index: 10002;
-  background: rgba(0, 0, 0, 0.7);
+  background: rgba(0, 0, 0, 0.3);
   padding: 10px;
   border-radius: 8px;
+  transition: opacity 0.3s ease, background 0.3s ease;
+  opacity: 0.7;
+  pointer-events: auto;
+}
+
+.zoom-controls::before {
+  content: '';
+  position: absolute;
+  top: -15px;
+  left: -15px;
+  right: -15px;
+  bottom: -15px;
+  z-index: -1;
+}
+
+.zoom-controls:hover {
+  opacity: 1;
+  background: rgba(0, 0, 0, 0.8);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
 }
 
 .zoom-btn {
@@ -68,13 +87,21 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.2s;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   padding: 0;
+  will-change: transform, background, border-color;
 }
 
 .zoom-btn:hover {
-  background: rgba(255, 255, 255, 0.2);
-  transform: scale(1.1);
+  background: rgba(255, 255, 255, 0.25);
+  border-color: rgba(255, 255, 255, 0.5);
+  transform: scale(1.15) translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.zoom-btn:active {
+  transform: scale(1.05) translateY(0);
+  transition: all 0.1s;
 }
 
 .zoom-btn.close-btn {
@@ -85,27 +112,75 @@ body {
   background: rgba(255, 0, 0, 0.5);
 }
 
-.zoom-input {
+.zoom-btn.preset-btn {
+  width: auto;
+  min-width: 50px;
+  padding: 0 10px;
+  font-size: 12px;
+  border-radius: 8px;
+}
+
+.zoom-pill {
+  display: flex;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 20px;
+  overflow: hidden;
+  height: 40px;
+}
+
+.zoom-pill-btn {
+  width: 40px;
+  height: 40px;
+  background: transparent;
+  color: #fff;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  padding: 0;
+  will-change: background;
+}
+
+.zoom-pill-btn:hover {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.zoom-pill-btn:active {
+  background: rgba(255, 255, 255, 0.25);
+}
+
+.zoom-pill-input {
   width: 70px;
   height: 40px;
-  background: rgba(255, 255, 255, 0.1);
+  background: transparent;
   color: #fff;
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  border-radius: 8px;
+  border: none;
+  border-left: 1px solid rgba(255, 255, 255, 0.2);
+  border-right: 1px solid rgba(255, 255, 255, 0.2);
   font-size: 14px;
   text-align: center;
   padding: 0 8px;
   font-family: system-ui, -apple-system, sans-serif;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: background;
 }
 
-.zoom-input:focus {
+.zoom-pill-input:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.zoom-pill-input:focus {
   outline: none;
-  background: rgba(255, 255, 255, 0.15);
-  border-color: rgba(255, 255, 255, 0.5);
+  background: rgba(255, 255, 255, 0.1);
 }
 
-.zoom-input::-webkit-inner-spin-button,
-.zoom-input::-webkit-outer-spin-button {
+.zoom-pill-input::-webkit-inner-spin-button,
+.zoom-pill-input::-webkit-outer-spin-button {
   opacity: 1;
   height: 20px;
 }

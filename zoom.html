@@ -11,10 +11,16 @@
     <img id="zoomImage" alt="Instagram image" draggable="false">
   </div>
   <div class="zoom-controls">
-    <button id="zoomReset" class="zoom-btn" title="Reset zoom">⟲</button>
-    <button id="zoomOut" class="zoom-btn" title="Zoom out">−</button>
-    <input type="number" id="zoomInput" class="zoom-input" value="100" min="50" max="1000" step="1">
-    <button id="zoomIn" class="zoom-btn" title="Zoom in">+</button>
+    <button id="zoomReset" class="zoom-btn" title="Reset zoom to 50%">⟲</button>
+    <div class="zoom-pill">
+      <button id="zoomOut" class="zoom-pill-btn" title="Zoom out">−</button>
+      <input type="number" id="zoomInput" class="zoom-pill-input" value="100" min="10" max="1000" step="1">
+      <button id="zoomIn" class="zoom-pill-btn" title="Zoom in">+</button>
+    </div>
+    <button id="zoomFit" class="zoom-btn preset-btn" title="Fit to screen">Fit</button>
+    <button id="zoom100" class="zoom-btn preset-btn" title="100%">100%</button>
+    <button id="zoom200" class="zoom-btn preset-btn" title="200%">200%</button>
+    <button id="zoom400" class="zoom-btn preset-btn" title="400%">400%</button>
     <button id="closeZoom" class="zoom-btn close-btn" title="Close">×</button>
   </div>
 
