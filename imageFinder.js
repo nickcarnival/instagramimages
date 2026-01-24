@@ -1,8 +1,6 @@
-// Image finding logic for Instagram
 function findInstagramImage(clickedImageUrl, cdnDomain) {
   let imageUrl = null;
   
-  // Helper function to check if image is visible
   function isImageVisible(img) {
     if (!img || !img.src.includes(cdnDomain)) return false;
     const rect = img.getBoundingClientRect();
@@ -13,7 +11,6 @@ function findInstagramImage(clickedImageUrl, cdnDomain) {
            style.opacity !== '0';
   }
   
-  // Helper function to climb up the tree and find images
   function findImageInTree(element) {
     if (!element) return null;
     
@@ -21,9 +18,7 @@ function findInstagramImage(clickedImageUrl, cdnDomain) {
     let bestImage = null;
     let bestArea = 0;
     
-    // Climb up the tree, checking each level for images
     while (current && current !== document.body) {
-      // Check if current element is an image
       if (current.tagName === 'IMG' && isImageVisible(current)) {
         const rect = current.getBoundingClientRect();
         const area = rect.width * rect.height;
@@ -33,7 +28,6 @@ function findInstagramImage(clickedImageUrl, cdnDomain) {
         }
       }
       
-      // Look for images in _aagu containers (grid view) or _aato containers (detail/carousel view)
       const containers = current.querySelectorAll('div._aagu, div._aagu._aato');
       for (const container of containers) {
         const img = container.querySelector('img');
@@ -47,12 +41,10 @@ function findInstagramImage(clickedImageUrl, cdnDomain) {
         }
       }
       
-      // For carousel views, find the active/visible slide
       const carouselItems = current.querySelectorAll('li._acaz');
       for (const item of carouselItems) {
         const rect = item.getBoundingClientRect();
         const style = window.getComputedStyle(item);
-        // Check if this carousel item is visible (not transformed off-screen)
         const transform = style.transform;
         const isVisible = rect.width > 0 && rect.height > 0 &&
                          style.display !== 'none' &&
@@ -78,12 +70,9 @@ function findInstagramImage(clickedImageUrl, cdnDomain) {
     return bestImage;
   }
   
-  // If we have a clicked image URL, try to find that element first
   if (clickedImageUrl?.includes(cdnDomain)) {
-    // Try to find the clicked image element
     const clickedImages = document.querySelectorAll(`img[src*="${cdnDomain}"]`);
     for (const img of clickedImages) {
-      // Match by URL (handle query params and encoding)
       const imgUrl = img.src.split('?')[0];
       const clickedUrl = clickedImageUrl.split('?')[0];
       if (imgUrl === clickedUrl || img.src === clickedImageUrl) {
@@ -91,19 +80,15 @@ function findInstagramImage(clickedImageUrl, cdnDomain) {
         if (foundImage) {
           return foundImage.src;
         }
-        // If found element itself is good, use it
         if (isImageVisible(img)) {
           return img.src;
         }
       }
     }
-    // If we can't find the element but have a valid URL, use it
     imageUrl = clickedImageUrl;
   }
   
-  // If we still don't have an image, search for the best visible image
   if (!imageUrl) {
-    // Find all _aagu containers (works for both grid and detail views)
     const containers = document.querySelectorAll('div._aagu, div._aagu._aato');
     let bestImage = null;
     let bestArea = 0;
@@ -115,7 +100,6 @@ function findInstagramImage(clickedImageUrl, cdnDomain) {
       const rect = img.getBoundingClientRect();
       const containerStyle = window.getComputedStyle(container);
       
-      // Additional visibility check for container
       if (containerStyle.display === 'none' || containerStyle.visibility === 'hidden') {
         continue;
       }
@@ -130,7 +114,6 @@ function findInstagramImage(clickedImageUrl, cdnDomain) {
     if (bestImage) {
       imageUrl = bestImage.src;
     } else {
-      // Final fallback: find any visible CDN image
       const allImages = document.querySelectorAll(`img[src*="${cdnDomain}"]`);
       for (const img of allImages) {
         if (isImageVisible(img)) {

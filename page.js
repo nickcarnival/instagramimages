@@ -1,5 +1,3 @@
-window.pageScriptLoaded = true;
-
 const params = new URLSearchParams(window.location.search);
 const rawImageUrl = params.get('imageUrl');
 const imageUrl = rawImageUrl ? decodeURIComponent(rawImageUrl) : '';
@@ -14,12 +12,9 @@ const closeFullscreenBtn = document.getElementById('closeFullscreen');
 if (!imageUrl) {
   document.body.innerHTML = '<div class="error"><h1>No image URL provided</h1></div>';
 } else {
-  // Set CDN link - ensure it opens the actual image URL
   cdnLink.href = imageUrl;
-  cdnLink.setAttribute('href', imageUrl);
-  cdnLink.removeAttribute('target'); // Remove target so our handler controls it
+  cdnLink.removeAttribute('target');
   
-  // Override click to ensure it opens the image URL (not page.html)
   cdnLink.addEventListener('click', (e) => {
     e.preventDefault();
     e.stopPropagation();
@@ -27,19 +22,16 @@ if (!imageUrl) {
     return false;
   });
   
-  // Try direct src first (usually works for Instagram CDN)
   imageEl.src = imageUrl;
   
   imageEl.onerror = () => {
-    // Try loading via fetch/blob as fallback
     fetch(imageUrl)
       .then(response => {
         if (!response.ok) throw new Error(`Fetch failed: ${response.status}`);
         return response.blob();
       })
       .then(blob => {
-        const url = URL.createObjectURL(blob);
-        imageEl.src = url;
+        imageEl.src = URL.createObjectURL(blob);
       })
       .catch(() => {
         imageEl.alt = 'Failed to load image';
@@ -47,11 +39,9 @@ if (!imageUrl) {
   };
   
   imageEl.onload = () => {
-    // Set fullscreen image src
     fullscreenImage.src = imageUrl;
   };
   
-  // Fullscreen functionality
   function enterFullscreen() {
     fullscreenOverlay.classList.add('active');
     document.body.classList.add('fullscreen-active');
@@ -64,12 +54,8 @@ if (!imageUrl) {
     document.body.style.overflow = '';
   }
   
-  // Click to enter fullscreen
-  imageEl.addEventListener('click', () => {
-    enterFullscreen();
-  });
+  imageEl.addEventListener('click', enterFullscreen);
   
-  // Close fullscreen
   closeFullscreenBtn.addEventListener('click', exitFullscreen);
   fullscreenOverlay.addEventListener('click', (e) => {
     if (e.target === fullscreenOverlay) {
@@ -77,7 +63,6 @@ if (!imageUrl) {
     }
   });
   
-  // ESC key to exit fullscreen
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape' && fullscreenOverlay.classList.contains('active')) {
       exitFullscreen();
@@ -96,7 +81,7 @@ if (!imageUrl) {
       }
       
       const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
+      const url = URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
       
@@ -107,7 +92,7 @@ if (!imageUrl) {
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
-      window.URL.revokeObjectURL(url);
+      URL.revokeObjectURL(url);
     } catch (error) {
       alert(`Failed to download image: ${error.message}`);
     } finally {

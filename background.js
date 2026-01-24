@@ -1,4 +1,3 @@
-// Background service worker
 const CONTEXT_MENU_ID = "instagram-parse-image";
 const INSTAGRAM_DOMAIN = "https://www.instagram.com/*";
 const CDN_DOMAIN = "cdninstagram.com";
@@ -21,7 +20,6 @@ createContextMenu();
 chrome.contextMenus.onClicked.addListener((info, tab) => {
   if (info.menuItemId !== CONTEXT_MENU_ID || !tab?.id) return;
 
-  // Inject image finder script and execute
   chrome.scripting.executeScript({
     target: { tabId: tab.id },
     files: ['imageFinder.js']
