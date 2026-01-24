@@ -17,11 +17,14 @@ if (!imageUrl) {
   // Set CDN link - ensure it opens the actual image URL
   cdnLink.href = imageUrl;
   cdnLink.setAttribute('href', imageUrl);
+  cdnLink.removeAttribute('target'); // Remove target so our handler controls it
   
-  // Override click to ensure it opens the image URL
+  // Override click to ensure it opens the image URL (not page.html)
   cdnLink.addEventListener('click', (e) => {
     e.preventDefault();
-    window.open(imageUrl, '_blank');
+    e.stopPropagation();
+    window.open(imageUrl, '_blank', 'noopener,noreferrer');
+    return false;
   });
   
   // Try direct src first (usually works for Instagram CDN)
@@ -61,21 +64,8 @@ if (!imageUrl) {
     document.body.style.overflow = '';
   }
   
-  // Hover to enter fullscreen
-  let hoverTimeout;
-  imageEl.addEventListener('mouseenter', () => {
-    hoverTimeout = setTimeout(() => {
-      enterFullscreen();
-    }, 500);
-  });
-  
-  imageEl.addEventListener('mouseleave', () => {
-    clearTimeout(hoverTimeout);
-  });
-  
   // Click to enter fullscreen
   imageEl.addEventListener('click', () => {
-    clearTimeout(hoverTimeout);
     enterFullscreen();
   });
   

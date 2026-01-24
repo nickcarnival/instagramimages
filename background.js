@@ -21,39 +21,21 @@ createContextMenu();
 chrome.contextMenus.onClicked.addListener((info, tab) => {
   if (info.menuItemId !== CONTEXT_MENU_ID || !tab?.id) return;
 
+  // Inject image finder script and execute
   chrome.scripting.executeScript({
     target: { tabId: tab.id },
-    func: (clickedImageUrl, cdnDomain) => {
-      let imageUrl = null;
-      
-      if (clickedImageUrl?.includes(cdnDomain)) {
-        imageUrl = clickedImageUrl;
-      } else {
-        const containers = document.querySelectorAll('div._aagu img');
-        let largest = null;
-        let largestArea = 0;
-        
-        for (const img of containers) {
-          if (!img.src.includes(cdnDomain)) continue;
-          const rect = img.getBoundingClientRect();
-          const area = rect.width * rect.height;
-          if (area > largestArea) {
-            largestArea = area;
-            largest = img;
-          }
+    files: ['imageFinder.js']
+  }).then(() => {
+    return chrome.scripting.executeScript({
+      target: { tabId: tab.id },
+      func: (clickedImageUrl, cdnDomain) => {
+        if (typeof findInstagramImage === 'function') {
+          return findInstagramImage(clickedImageUrl, cdnDomain);
         }
-        
-        if (largest) {
-          imageUrl = largest.src;
-        } else {
-          const fallback = document.querySelector(`img[src*="${cdnDomain}"]`);
-          imageUrl = fallback?.src || null;
-        }
-      }
-      
-      return imageUrl;
-    },
-    args: [info.srcUrl || null, CDN_DOMAIN]
+        return null;
+      },
+      args: [info.srcUrl || null, CDN_DOMAIN]
+    });
   }).then((results) => {
     const imageUrl = results[0]?.result;
     
