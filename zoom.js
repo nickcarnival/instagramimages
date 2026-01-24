@@ -28,30 +28,16 @@ let zoomState = {
   startTranslateY: 0
 };
 
-
 let mousePosition = {
   x: 0,
   y: 0
 };
 
 if (!imageUrl) {
-  document.body.innerHTML = '<div style="color: #ff6b6b; text-align: center; padding: 50px;"><h1>No image URL provided</h1></div>';
+  showError('No image URL provided');
 } else {
   zoomImage.src = imageUrl;
-  
-  zoomImage.onerror = () => {
-    fetch(imageUrl)
-      .then(response => {
-        if (!response.ok) throw new Error(`Fetch failed: ${response.status}`);
-        return response.blob();
-      })
-      .then(blob => {
-        zoomImage.src = URL.createObjectURL(blob);
-      })
-      .catch(() => {
-        zoomImage.alt = 'Failed to load image';
-      });
-  };
+  handleImageError(zoomImage, imageUrl);
   
   function initializeZoomAtClick() {
     if (clickPercentX !== null && clickPercentY !== null && zoomImage.complete) {
@@ -61,41 +47,35 @@ if (!imageUrl) {
     }
   }
   
+  function getImageDimensions() {
+    const containerRect = zoomContainer.getBoundingClientRect();
+    const aspectRatio = calculateAspectRatio(zoomImage.naturalWidth, zoomImage.naturalHeight);
+    return calculateImageDimensions(containerRect.width, containerRect.height, aspectRatio);
+  }
+  
+  function calculateClickOffset(displayedWidth, displayedHeight) {
+    const clickXInImage = (clickPercentX / 100) * displayedWidth;
+    const clickYInImage = (clickPercentY / 100) * displayedHeight;
+    const imageCenterX = displayedWidth / 2;
+    const imageCenterY = displayedHeight / 2;
+    return {
+      offsetX: clickXInImage - imageCenterX,
+      offsetY: clickYInImage - imageCenterY
+    };
+  }
+  
+  function applyZoomAtPoint(scale, offsetX, offsetY) {
+    zoomState.scale = scale;
+    zoomState.x = -offsetX * scale;
+    zoomState.y = -offsetY * scale;
+    updateZoomTransform();
+  }
+  
   function applyInitialZoom() {
     setTimeout(() => {
-      const containerRect = zoomContainer.getBoundingClientRect();
-      const containerWidth = containerRect.width;
-      const containerHeight = containerRect.height;
-      
-      const initialScale = 1.5;
-      zoomState.scale = initialScale;
-      
-      const naturalWidth = zoomImage.naturalWidth;
-      const naturalHeight = zoomImage.naturalHeight;
-      const aspectRatio = naturalWidth / naturalHeight;
-      
-      let displayedWidth = containerWidth;
-      let displayedHeight = containerHeight;
-      
-      if (containerWidth / containerHeight > aspectRatio) {
-        displayedWidth = containerHeight * aspectRatio;
-      } else {
-        displayedHeight = containerWidth / aspectRatio;
-      }
-      
-      const clickXInImage = (clickPercentX / 100) * displayedWidth;
-      const clickYInImage = (clickPercentY / 100) * displayedHeight;
-      
-      const imageCenterX = displayedWidth / 2;
-      const imageCenterY = displayedHeight / 2;
-      
-      const offsetFromCenterX = clickXInImage - imageCenterX;
-      const offsetFromCenterY = clickYInImage - imageCenterY;
-      
-      zoomState.x = -offsetFromCenterX * initialScale;
-      zoomState.y = -offsetFromCenterY * initialScale;
-      
-      updateZoomTransform();
+      const { displayedWidth, displayedHeight } = getImageDimensions();
+      const { offsetX, offsetY } = calculateClickOffset(displayedWidth, displayedHeight);
+      applyZoomAtPoint(1.5, offsetX, offsetY);
     }, 50);
   }
   
@@ -142,20 +122,12 @@ if (!imageUrl) {
   
   function fitToScreen() {
     const rect = zoomContainer.getBoundingClientRect();
-    const containerWidth = rect.width;
-    const containerHeight = rect.height;
-    
-    const naturalWidth = zoomImage.naturalWidth;
-    const naturalHeight = zoomImage.naturalHeight;
-    const aspectRatio = naturalWidth / naturalHeight;
-    
-    let fitScale;
-    if (containerWidth / containerHeight > aspectRatio) {
-      fitScale = containerHeight / naturalHeight;
-    } else {
-      fitScale = containerWidth / naturalWidth;
-    }
-    
+    const fitScale = calculateFitScale(
+      rect.width,
+      rect.height,
+      zoomImage.naturalWidth,
+      zoomImage.naturalHeight
+    );
     zoomState.scale = fitScale;
     zoomState.x = 0;
     zoomState.y = 0;
@@ -250,24 +222,21 @@ if (!imageUrl) {
   
   updateZoomInput();
   
+  // Button event listeners
   zoomResetBtn.addEventListener('click', resetZoom);
   zoomInBtn.addEventListener('click', zoomIn);
   zoomOutBtn.addEventListener('click', zoomOut);
   zoomFitBtn.addEventListener('click', fitToScreen);
-  zoom100Btn.addEventListener('click', () => setZoomFromPercent(100));
-  zoom200Btn.addEventListener('click', () => setZoomFromPercent(200));
-  zoom400Btn.addEventListener('click', () => setZoomFromPercent(400));
-  closeZoomBtn.addEventListener('click', goBack);
   
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') {
-      goBack();
-    } else if (e.key === '+' || e.key === '=') {
-      zoomIn();
-    } else if (e.key === '-') {
-      zoomOut();
-    } else if (e.key === '0') {
-      resetZoom();
-    }
+  // Zoom preset buttons
+  const zoomPresets = [
+    { btn: zoom100Btn, percent: 100 },
+    { btn: zoom200Btn, percent: 200 },
+    { btn: zoom400Btn, percent: 400 }
+  ];
+  zoomPresets.forEach(({ btn, percent }) => {
+    btn.addEventListener('click', () => setZoomFromPercent(percent));
   });
+  
+  closeZoomBtn.addEventListener('click', goBack);
 }

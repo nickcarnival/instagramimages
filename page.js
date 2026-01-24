@@ -7,7 +7,7 @@ const downloadBtn = document.getElementById('downloadBtn');
 const cdnLink = document.getElementById('cdnLink');
 
 if (!imageUrl) {
-  document.body.innerHTML = '<div class="error"><h1>No image URL provided</h1></div>';
+  showError('No image URL provided');
 } else {
   cdnLink.href = imageUrl;
   cdnLink.removeAttribute('target');
@@ -20,20 +20,7 @@ if (!imageUrl) {
   });
   
   imageEl.src = imageUrl;
-  
-  imageEl.onerror = () => {
-    fetch(imageUrl)
-      .then(response => {
-        if (!response.ok) throw new Error(`Fetch failed: ${response.status}`);
-        return response.blob();
-      })
-      .then(blob => {
-        imageEl.src = URL.createObjectURL(blob);
-      })
-      .catch(() => {
-        imageEl.alt = 'Failed to load image';
-      });
-  };
+  handleImageError(imageEl, imageUrl);
   
   function enterZoomView(e) {
     const rect = imageEl.getBoundingClientRect();

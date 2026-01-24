@@ -11,6 +11,62 @@ function findInstagramImage(clickedImageUrl, cdnDomain) {
            style.opacity !== '0';
   }
   
+  function getImageArea(img) {
+    if (!img) return 0;
+    const rect = img.getBoundingClientRect();
+    return rect.width * rect.height;
+  }
+  
+  function updateBestImage(currentBest, currentArea, candidate) {
+    if (!candidate || !isImageVisible(candidate)) return { best: currentBest, area: currentArea };
+    const area = getImageArea(candidate);
+    if (area > currentArea) {
+      return { best: candidate, area };
+    }
+    return { best: currentBest, area: currentArea };
+  }
+  
+  function findInGridContainers(element) {
+    const containers = element.querySelectorAll('div._aagu, div._aagu._aato');
+    let bestImage = null;
+    let bestArea = 0;
+    
+    for (const container of containers) {
+      const img = container.querySelector('img');
+      const result = updateBestImage(bestImage, bestArea, img);
+      bestImage = result.best;
+      bestArea = result.area;
+    }
+    
+    return bestImage;
+  }
+  
+  function isCarouselItemVisible(item) {
+    const rect = item.getBoundingClientRect();
+    const style = window.getComputedStyle(item);
+    const transform = style.transform;
+    return rect.width > 0 && rect.height > 0 &&
+           style.display !== 'none' &&
+           style.visibility !== 'hidden' &&
+           (transform === 'none' || !transform.includes('translateX(-') || transform.includes('translateX(0'));
+  }
+  
+  function findInCarousel(element) {
+    const carouselItems = element.querySelectorAll('li._acaz');
+    let bestImage = null;
+    let bestArea = 0;
+    
+    for (const item of carouselItems) {
+      if (!isCarouselItemVisible(item)) continue;
+      const img = item.querySelector('img');
+      const result = updateBestImage(bestImage, bestArea, img);
+      bestImage = result.best;
+      bestArea = result.area;
+    }
+    
+    return bestImage;
+  }
+  
   function findImageInTree(element) {
     if (!element) return null;
     
@@ -19,49 +75,24 @@ function findInstagramImage(clickedImageUrl, cdnDomain) {
     let bestArea = 0;
     
     while (current && current !== document.body) {
-      if (current.tagName === 'IMG' && isImageVisible(current)) {
-        const rect = current.getBoundingClientRect();
-        const area = rect.width * rect.height;
-        if (area > bestArea) {
-          bestArea = area;
-          bestImage = current;
-        }
+      if (current.tagName === 'IMG') {
+        const result = updateBestImage(bestImage, bestArea, current);
+        bestImage = result.best;
+        bestArea = result.area;
       }
       
-      const containers = current.querySelectorAll('div._aagu, div._aagu._aato');
-      for (const container of containers) {
-        const img = container.querySelector('img');
-        if (isImageVisible(img)) {
-          const rect = img.getBoundingClientRect();
-          const area = rect.width * rect.height;
-          if (area > bestArea) {
-            bestArea = area;
-            bestImage = img;
-          }
-        }
+      const gridImage = findInGridContainers(current);
+      if (gridImage) {
+        const result = updateBestImage(bestImage, bestArea, gridImage);
+        bestImage = result.best;
+        bestArea = result.area;
       }
       
-      const carouselItems = current.querySelectorAll('li._acaz');
-      for (const item of carouselItems) {
-        const rect = item.getBoundingClientRect();
-        const style = window.getComputedStyle(item);
-        const transform = style.transform;
-        const isVisible = rect.width > 0 && rect.height > 0 &&
-                         style.display !== 'none' &&
-                         style.visibility !== 'hidden' &&
-                         (transform === 'none' || !transform.includes('translateX(-') || transform.includes('translateX(0'));
-        
-        if (isVisible) {
-          const img = item.querySelector('img');
-          if (isImageVisible(img)) {
-            const imgRect = img.getBoundingClientRect();
-            const area = imgRect.width * imgRect.height;
-            if (area > bestArea) {
-              bestArea = area;
-              bestImage = img;
-            }
-          }
-        }
+      const carouselImage = findInCarousel(current);
+      if (carouselImage) {
+        const result = updateBestImage(bestImage, bestArea, carouselImage);
+        bestImage = result.best;
+        bestArea = result.area;
       }
       
       current = current.parentElement;
