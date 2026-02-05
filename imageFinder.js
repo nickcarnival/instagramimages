@@ -67,47 +67,50 @@ function findInstagramImage(clickedImageUrl, cdnDomain) {
     return bestImage;
   }
   
-  function findImageInTree(element) {
+  function findImageInTree(element, boundary) {
     if (!element) return null;
-    
+
     let current = element;
     let bestImage = null;
     let bestArea = 0;
-    
+
     while (current && current !== document.body) {
+      if (boundary && !boundary.contains(current)) break;
+
       if (current.tagName === 'IMG') {
         const result = updateBestImage(bestImage, bestArea, current);
         bestImage = result.best;
         bestArea = result.area;
       }
-      
+
       const gridImage = findInGridContainers(current);
       if (gridImage) {
         const result = updateBestImage(bestImage, bestArea, gridImage);
         bestImage = result.best;
         bestArea = result.area;
       }
-      
+
       const carouselImage = findInCarousel(current);
       if (carouselImage) {
         const result = updateBestImage(bestImage, bestArea, carouselImage);
         bestImage = result.best;
         bestArea = result.area;
       }
-      
+
       current = current.parentElement;
     }
-    
+
     return bestImage;
   }
-  
+
   if (clickedImageUrl?.includes(cdnDomain)) {
     const clickedImages = document.querySelectorAll(`img[src*="${cdnDomain}"]`);
     for (const img of clickedImages) {
       const imgUrl = img.src.split('?')[0];
       const clickedUrl = clickedImageUrl.split('?')[0];
       if (imgUrl === clickedUrl || img.src === clickedImageUrl) {
-        const foundImage = findImageInTree(img);
+        const postBoundary = img.closest('article') || img.parentElement;
+        const foundImage = findImageInTree(img, postBoundary);
         if (foundImage) {
           return foundImage.src;
         }
